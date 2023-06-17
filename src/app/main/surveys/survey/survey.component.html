@@ -1,0 +1,303 @@
+<div class="card">
+    <ng-container *ngIf="loading">
+        <div class="text-center py-2">
+            <h3><i class="fa fa-spinner fa-spin"></i></h3>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && !surveyData">
+        <div class="text-center py-2">
+            <h3>Survey Details couldn't be loaded</h3>
+            <button class="btn btn-info" (click)="getSurvey()">Retry</button>
+        </div>
+    </ng-container>
+    <ng-container *ngIf="!loading && surveyData">
+        <div class="card-header d-flex flex-column align-items-start pb-0">
+            <h2 class="font-weight-bolder mt-1 w-100">Survey Details</h2>
+        </div>
+        <div class="card-body mt-1">
+            <div class="row">
+                <div class="col-12">
+                    <h2 class="font-weight-bolder mt-1 w-100">
+                        Survey Name
+                        <span class="float-right">Added on : {{ surveyData?.created_at | date : 'EEE dd, MM yyyy' }}</span>
+                    </h2>
+                    <p>{{surveyData?.name}}</p>
+                </div>
+                <div class="col-12">
+                    <h2 class="font-weight-bolder mt-1 w-100">
+                        Description
+                        <span class="float-right">Status : {{ surveyData?.active == '1'  ? 'Active' : 'Inactive' }}</span>
+                    </h2>
+                    <p>{{surveyData?.description}}</p>
+                </div>
+                <div class="col-12 d-flex align-items-center">
+                    <div class="form-group">
+                        <label for="account-company">Voice</label>
+                        <select class="form-control" [(ngModel)]="voice_to_play"> 
+                            <option value="">Select Voice</option>
+                            <option *ngFor="let vv of allVoice" value="{{vv.name}}">{{vv.name}} ({{vv.gender}})</option>
+                        </select>
+                    </div>
+                    <button type="button" [disabled]="updatingVoice" class="btn ml-2 max-hg-btn btn-info d-flex float-right"
+                        style="margin-top: 10px!important;" (click)="updateVoice()" rippleEffect>
+                        <span *ngIf="updatingVoice" class="spinner-border spinner-border-sm mr-1"></span> 
+                        Update Voice
+                    </button>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</div>
+
+<div class="card" *ngIf="!loading && surveyData">
+    <ul ngbNav #nav="ngbNav" class="nav-tabs d-flex justify-content-center">
+        <li ngbNavItem>
+          <a ngbNavLink>Questions</a>
+          <ng-template ngbNavContent>
+            <div class="card-header d-flex flex-column align-items-start pb-0">
+                <h2 class="font-weight-bolder mt-1 w-100">
+                    Survey Questions
+                    <button class="btn btn-info float-right" (click)="openQuestionModal()">Add Question</button>
+                </h2>
+            </div>
+            <div class="card-body mt-1">
+                <div class="row">
+                    <div class="col-12">
+                        <ngx-datatable #tablesss class="bootstrap core-bootstrap sz-1000" 
+                            [rows]="allQuestions"
+                            [columnMode]="'force'"
+                            [headerHeight]="50"
+                            [footerHeight]="50"
+                            rowHeight="auto"
+                            [limit]="page.size"
+                            >
+                            <ngx-datatable-column name="Id" prop="id">
+                                <ng-template let-value="value" ngx-datatable-cell-template>{{value}}</ng-template>
+                            </ngx-datatable-column>
+                            <ngx-datatable-column name="Question" prop="question">
+                                <ng-template let-value="value" ngx-datatable-cell-template>{{value}}</ng-template>
+                            </ngx-datatable-column>
+                            <ngx-datatable-column name="Type" prop="question_type">
+                                <ng-template let-value="value" ngx-datatable-cell-template>
+                                    {{value == 'boolean'  ? 'Yes/No' : value  | titlecase}}
+                                </ng-template>
+                            </ngx-datatable-column>
+                            <ngx-datatable-column name="Added on" prop="created_at">
+                                <ng-template let-value="value" ngx-datatable-cell-template>{{value | date : 'dd-MM-yyyy'}}</ng-template>
+                            </ngx-datatable-column>
+                            <ngx-datatable-column name="Actions" sortable="false" prop="id">
+                                <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                                    <div class="d-flex align-items-center">
+                                        <div ngbDropdown container="body">
+                                          <a ngbDropdownToggle href="javascript:void(0);" class="hide-arrow"
+                                            id="dropdownBrowserState" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i data-feather="more-vertical" class="text-info cursor-pointer mr-50"></i>
+                                          </a>
+                                          <div ngbDropdownMenu class="dropdown-menu-right" aria-labelledby="dropdownBrowserState">
+                                            <a href="javascript:void(0)" (click)="openDeleteModal(row)" ngbDropdownItem class="d-flex align-items-center">
+                                                <i class="fa fa-eye" class="mr-50"></i> Delete Question
+                                            </a>
+                                          </div>
+                                        </div>
+                                      </div>
+                                </ng-template>
+                            </ngx-datatable-column>
+                        </ngx-datatable>
+                    </div>
+                </div>
+            </div>
+          </ng-template>
+        </li>
+        <li ngbNavItem class="answersss">
+          <a ngbNavLink>Results</a>
+          <ng-template ngbNavContent>
+            <div class="card-header d-flex flex-column align-items-start pb-0">
+                <h2 class="font-weight-bolder mt-1 w-100">
+                    Survey Results
+                    <div class="float-right">
+                        <a csvLink [data]="csvData" class="btn btn-outline-secondary" rippleEffect>Export CSV</a>
+                        <!-- <button class="btn btn-info ">Export Excel</button> -->
+                        <!-- <button class="btn btn-info " (click)="openQuestionModal()">Dowloa Question</button> -->
+                    </div>
+                </h2>
+            </div>
+            <div class="card-body mt-1">
+                <div class="row">
+                    <div class="col-12">
+                        <ngx-datatable #tablesss class="bootstrap core-bootstrap sz-1000" 
+                            [rows]="filteredAnswers"
+                            [columnMode]="'force'"
+                            [headerHeight]="50"
+                            [footerHeight]="50"
+                            rowHeight="auto"
+                            [limit]="page.size"
+                            >
+                            <ngx-datatable-column name="Phone" prop="phone" [width]="150">
+                                <ng-template let-value="value" ngx-datatable-cell-template>{{value}}</ng-template>
+                            </ngx-datatable-column>
+                            <ngx-datatable-column name="Called At" prop="created_at" [width]="150">
+                                <ng-template let-value="value" ngx-datatable-cell-template>{{value | date : 'EEE dd, MM,yyyy hh:mm a'}}</ng-template>
+                            </ngx-datatable-column>
+                            <ngx-datatable-column *ngFor="let quest of questionText; let qsindx = index;" [name]="quest" [prop]="'answer'+qsindx" >
+                                <ng-template let-value="value" ngx-datatable-cell-template>
+                                    <div class="text-center w-100">{{value || '-'}}</div>
+                                </ng-template>
+                            </ngx-datatable-column>
+                        </ngx-datatable>
+                    </div>
+                </div>
+            </div>
+          </ng-template>
+        </li>
+      </ul>
+      <div [ngbNavOutlet]="nav"></div>
+</div>
+<!-- <div class="card" >
+    <div class="card-header d-flex flex-column align-items-start pb-0">
+        <h2 class="font-weight-bolder mt-1 w-100">
+            Survey Questions
+            <button class="btn btn-info float-right" (click)="openQuestionModal()">Add Question</button>
+        </h2>
+    </div>
+    <div class="card-body mt-1">
+        <div class="row">
+            <div class="col-12">
+                <ngx-datatable #tablesss class="bootstrap core-bootstrap sz-1000" 
+                    [rows]="allQuestions"
+                    [columnMode]="'force'"
+                    [headerHeight]="50"
+                    [footerHeight]="50"
+                    rowHeight="auto"
+                    [limit]="page.size"
+                    >
+                    <ngx-datatable-column name="Id" prop="id">
+                        <ng-template let-value="value" ngx-datatable-cell-template>{{value}}</ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Question" prop="question">
+                        <ng-template let-value="value" ngx-datatable-cell-template>{{value}}</ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Type" prop="question_type">
+                        <ng-template let-value="value" ngx-datatable-cell-template>
+                            {{value == 'boolean'  ? 'Yes/No' : value  | titlecase}}
+                        </ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Added on" prop="created_at">
+                        <ng-template let-value="value" ngx-datatable-cell-template>{{value | date : 'dd-MM-yyyy'}}</ng-template>
+                    </ngx-datatable-column>
+                    <ngx-datatable-column name="Actions" sortable="false" prop="id">
+                        <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                            <div class="d-flex align-items-center">
+                                <div ngbDropdown container="body">
+                                  <a ngbDropdownToggle href="javascript:void(0);" class="hide-arrow"
+                                    id="dropdownBrowserState" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i data-feather="more-vertical" class="text-primary cursor-pointer mr-50"></i>
+                                  </a>
+                                  <div ngbDropdownMenu class="dropdown-menu-right" aria-labelledby="dropdownBrowserState">
+                                    <a href="javascript:void(0)" (click)="openDeleteModal(row)" ngbDropdownItem class="d-flex align-items-center">
+                                        <i class="fa fa-eye" class="mr-50"></i> Delete Question
+                                    </a>
+                                  </div>
+                                </div>
+                              </div>
+                        </ng-template>
+                    </ngx-datatable-column>
+                </ngx-datatable>
+            </div>
+        </div>
+    </div>
+</div> -->
+
+<div class="modal-on-show-event">
+    <!-- Modal -->
+    <ng-template #addQuestionModal let-modal>
+        <div class="modal-header bg-info">
+            <h4 class="modal-title text-white" id="myModalLabel1">New Question</h4>
+            <button type="button" [disabled]="addingQuestion" class="close" (click)="closed(modal)" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" tabindex="0" ngbAutofocus>
+            <h5>Enter question below : </h5>
+            <form class="form" [formGroup]="addQuestionForm">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="account-company">Question</label>
+                            <input type="text"  formControlName="question" class="form-control"
+                                [ngClass]="{ 'is-invalid':  questionForm.question.dirty && questionForm.question.errors }" />
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="account-company">Question Type</label>
+                            <select class="form-control" formControlName="question_type" 
+                                [ngClass]="{ 'is-invalid':  questionForm.question_type.dirty && questionForm.question_type.errors }" > 
+                                <option value="boolean">Yes/No</option>
+                                <option value="number">Number</option>
+                                <option value="voice">Voice</option>
+                                <option value="option">Option</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12" formArrayName="options" *ngIf="optionArray.controls && optionArray.controls.length">
+                        <div class="form-group d-flex justify-content-between">
+                            <label>Options</label>
+                            <button class="btn btn-success" (click)="addOption()"><i class="fa fa-plus"></i></button>
+                        </div>
+                        <div class="row" *ngFor="let item of optionArray.controls; let optionIdex=index" [formGroupName]="optionIdex">
+                            <div class="form-group col-md-5 options-fld">
+                                <label>Option Key</label>
+                                <input  type="text" placeholder="E.g 1/2/3 .." class="form-control" formControlName="key" 
+                                    [ngClass]="{ 'is-invalid':  questionForm.options.dirty && questionForm.options.errors }" 
+                                />
+                            </div>
+                            <div class="form-group col-md-5 options-fld">
+                                <label>Option</label>
+                                <input  type="text" placeholder="Enter option text" class="form-control" formControlName="title" 
+
+                                />
+                            </div>
+                            <div class="form-group col-md-2 align-items-center d-flex"  >
+                                <button class="btn btn-clear" (click)="deleteOption(pointIndex, false)"><i class="fa fa-minus text-danger"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" [disabled]="addingQuestion" class="btn btn-info d-flex float-left"
+                style="margin-top: 10px!important;" (click)="closed(modal)" rippleEffect> Cancel
+            </button>
+            <button type="button" [disabled]="addingQuestion" class="btn btn-success d-flex float-right"
+                style="margin-top: 10px!important;" (click)="addQuestion(modal)" rippleEffect>
+                <span *ngIf="addingQuestion" class="spinner-border spinner-border-sm mr-1"></span> 
+                Submit
+            </button>
+        </div>
+    </ng-template>
+
+    <ng-template #deleteQuestionModal let-modal1>
+        <div class="modal-header bg-info">
+            <h4 class="modal-title text-white" id="myModalLabel1">Active Survey</h4>
+            <button type="button" [disabled]="deletingQuestion" class="close" (click)="closed(modal1)" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" tabindex="0" ngbAutofocus>
+            <h5>Are you sure you want to delete question ? </h5>
+            <!-- <p class="text-warning"> </p> -->
+        </div>
+        <div class="modal-footer">
+            <button type="button" [disabled]="deletingQuestion" class="btn btn-info d-flex float-left"
+                style="margin-top: 10px!important;" (click)="closed(modal1)" rippleEffect> Cancel
+            </button>
+            <button type="button" [disabled]="deletingQuestion" class="btn btn-danger d-flex float-right"
+                style="margin-top: 10px!important;" (click)="deleteQuestion(modal1)" rippleEffect>
+                <span *ngIf="deletingQuestion" class="spinner-border spinner-border-sm mr-1"></span> 
+                Delete
+            </button>
+        </div>
+    </ng-template>
+</div>

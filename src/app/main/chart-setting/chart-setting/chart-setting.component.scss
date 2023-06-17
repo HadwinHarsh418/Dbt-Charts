@@ -1,0 +1,50 @@
+.help-block{
+    color: red;
+    font-size: 12px;
+    font-weight: bold;
+}
+.has-error-field{
+    border: 1px solid red;
+}
+.fileChange{
+    display: flex;
+    justify-content: space-between;
+    border: 1px dotted;
+    padding: 14px;
+    align-items: center;
+    border-radius: 12px;
+}
+i.fa.fa-remove{
+    font-size:25px;color:red
+}
+.fileShow{
+    border-color: #7367F0;
+    box-shadow: 0 4px 18px -4px rgb(115 103 240 / 65%);
+    background: #7367F0 !important;
+    left: 0;
+    top: 0;
+    width: 50%;
+    content: "Choose File";
+    color: #fff;
+    line-height: 50px;
+    padding: 0 15px !important;
+    border-radius: 10px !important;
+    font-size: 14px;
+}
+input#file {position: relative;border: none !important;appearance: none;height: 50px;border-radius: 12px !important;}
+
+input#file:after {
+    border-color: #7367F0;
+    box-shadow: 0 4px 18px -4px rgb(115 103 240 / 65%);
+    background: #7367F0 !important;
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    content: "Choose File";
+    color: #fff;
+    line-height: 50px;
+    padding: 0 15px !important;
+    border-radius: 10px !important;
+    font-size: 16px;
+}

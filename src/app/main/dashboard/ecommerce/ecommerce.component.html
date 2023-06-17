@@ -1,0 +1,85 @@
+<div class="row match-height">
+  <!-- Statistics Card -->
+  <div class="col-md-8 col-12">
+    <div class="card card-statistics">
+      <div class="card-header">
+        <h4 class="card-title">Statistics</h4>
+        <div class="d-flex align-items-center">
+          <p class="card-text font-small-2 mr-25 mb-0">For DBT Chart App</p>
+        </div>
+      </div>
+      <div class="card-body statistics-body">
+        <div class="row">
+          <div class="col-md-4">
+            <div class="media">
+              <div class="avatar bg-light-primary mr-2">
+                <div class="avatar-content">
+                  <i class="fa fa-users avatar-icon"></i>
+                </div>
+              </div>
+              <div class="media-body my-auto">
+                <h4 class="font-weight-bolder mb-0">{{ status?.total_customers || 0 }}</h4>
+                <p class="card-text font-small-3 mb-0">Chart Title</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="media">
+              <div class="avatar bg-light-info mr-2">
+                <div class="avatar-content">
+                  <i  class="fa fa-file-text-o avatar-icon"></i>
+                </div>
+              </div>
+              <div class="media-body my-auto">
+                <h4 class="font-weight-bolder mb-0">{{ status?.total_Survey || 0 }}</h4>
+                <p class="card-text font-small-3 mb-0">X-Y Axis</p>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="media">
+              <div class="avatar bg-light-danger mr-2">
+                <div class="avatar-content">
+                  <i class="fa fa-phone avatar-icon"></i>
+                </div>
+              </div>
+              <div class="media-body my-auto">
+                <h4 class="font-weight-bolder mb-0">{{ status?.total_calls || 0}}</h4>
+                <p class="card-text font-small-3 mb-0">Dots Points</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 col-12">
+    <div class="card">
+      <div class="card-header d-flex flex-column align-items-start pb-0">
+        <div class="avatar bg-light-primary p-50 m-0">
+          <div class="avatar-content">
+            <i data-feather="users" class="font-medium-5"></i>
+          </div>
+        </div>
+        <h2 class="font-weight-bolder mt-1">{{ data.subscribers_gained.analyticsData.subscribers }}</h2>
+        <p class="mb-0">Subscribers</p>
+      </div>
+
+      <!-- Apexchart component-->
+      <div id="gainedChartoptions">
+        <!-- <apx-chart
+          #gainedChartRef
+          [series]="data.subscribers_gained.series"
+          [chart]="gainedChartoptions.chart"
+          [stroke]="gainedChartoptions.stroke"
+          [fill]="gainedChartoptions.fill"
+          [tooltip]="gainedChartoptions.tooltip"
+          [colors]="gainedChartoptions.colors"
+          [dataLabels]="gainedChartoptions.dataLabels"
+        ></apx-chart> -->
+      </div>
+    </div>
+  </div>
+  
+  <!--/ Statistics Card -->
+</div>

@@ -1,0 +1,157 @@
+<div class="card">
+    <div class="card-header d-flex flex-column align-items-start pb-0">
+        <h2 class="font-weight-bolder mt-1 w-100">
+            Surveys
+            <button class="btn btn-info float-right" (click)="openSurveyModal()">Create Survey</button>
+        </h2>
+    </div>
+    <div class="card-body mt-1">
+        <div class="row">
+            <div class="col-md-6 col-12">
+                <div class="d-flex justify-content-between align-items-center m-1">
+                    <label class="d-flex align-items-center"> Show
+                        <select class="form-control mx-25" [(ngModel)]="page.size">
+                            <option value="10">10</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select> Entries
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-6 col-12 d-flex justify-content-md-end">
+                <!-- <span (click)="openVhivleImage()">opne</span> -->
+                <!-- <div class="d-flex align-items-center justify-content-end pr-1 pb-1 pl-1 pl-md-0 pb-md-0">
+              <label class="d-flex align-items-center"> {{ 'DEPOSIT.depoSearch' | translate}} 
+                <input type="search" placeholder="Search" class="form-control ml-25"/>
+              </label>
+            </div> -->
+            </div>
+        </div>
+
+        <ngx-datatable #tablesss class="bootstrap core-bootstrap sz-1000" 
+            [rows]="rows"
+            [columnMode]="'force'"
+            [headerHeight]="50"
+            [footerHeight]="50"
+            rowHeight="auto"
+            [limit]="page.size"
+            >
+            <ngx-datatable-column name="ID" prop="survey_id">
+                <ng-template let-value="value" ngx-datatable-cell-template>{{value}}</ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Name" prop="name">
+                <ng-template let-value="value" ngx-datatable-cell-template>{{value}}</ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Description" prop="description">
+                <ng-template let-value="value" ngx-datatable-cell-template>{{value}}</ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Questions" prop="total_questions">
+                <ng-template let-value="value" ngx-datatable-cell-template>{{value}}</ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Calls" prop="total_answers">
+                <ng-template let-value="value" ngx-datatable-cell-template>{{value}}</ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Status" prop="active">
+                <ng-template let-status="value" ngx-datatable-cell-template>
+                    <div class="badge badge-pill" [ngClass]="{ 
+                      'badge-light-primary': status == '0',
+                      'badge-light-success': status == '1' 
+                        }"> {{ status == '1' ? 'Active'  : 'Inactive' }}
+                    </div>
+                </ng-template>
+            </ngx-datatable-column>
+            <ngx-datatable-column name="Actions" sortable="false" prop="id">
+                <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                    <div class="d-flex align-items-center">
+                        <div ngbDropdown container="body">
+                          <a ngbDropdownToggle href="javascript:void(0);" class="hide-arrow"
+                            id="dropdownBrowserState" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i data-feather="more-vertical" class="text-info cursor-pointer mr-50"></i>
+                          </a>
+                          <div ngbDropdownMenu class="dropdown-menu-right" aria-labelledby="dropdownBrowserState">
+                            <a href="javascript:void(0)" [routerLink]="['view',row.survey_id]" ngbDropdownItem class="d-flex align-items-center">
+                                <i class="fa fa-eye" class="mr-50"></i> View Survey
+                            </a>
+                            <a href="javascript:void(0)" *ngIf="row.active != '1'" (click)="openDeleteModal(row)" ngbDropdownItem class="d-flex align-items-center">
+                                <i class="fa fa-eye" class="mr-50"></i> Activate Survey
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                </ng-template>
+            </ngx-datatable-column>
+        </ngx-datatable>
+    </div>
+</div>
+
+<div class="modal-on-show-event">
+    <!-- Modal -->
+    <ng-template #addSurveyModal let-modal>
+        <div class="modal-header bg-info">
+            <h4 class="modal-title text-white" id="myModalLabel1">New Survey</h4>
+            <button type="button" [disabled]="addingSurvey" class="close" (click)="closed(modal)" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" tabindex="0" ngbAutofocus>
+            <h5>Enter Survey details below : </h5>
+            <form class="form" [formGroup]="addSurveyForm">
+                <div class="row">
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="account-company">Name</label>
+                            <input type="text" inputDirective inptype="alphaNumParagraph" maxLimit="30"
+                                formControlName="name" class="form-control"
+                                [ngClass]="{ 'is-invalid':  surveyForm.name.dirty && surveyForm.name.errors }" />
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="account-company">Description</label>
+                            <input type="text" inputDirective inptype="alphaNumParagraph" 
+                                formControlName="description" class="form-control"
+                                [ngClass]="{ 'is-invalid':  surveyForm.description.dirty && surveyForm.description.errors }" />
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <div class="form-group">
+                            <label for="account-company">Voice</label>
+                            <select formControlName="voice" class="form-control"
+                                [ngClass]="{ 'is-invalid':  surveyForm.voice.dirty && surveyForm.voice.errors }" > 
+                                <option *ngFor="let vv of allVoice" value="{{vv.name}}">{{vv.name}} ({{vv.gender}})</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" [disabled]="addingSurvey" class="btn btn-info d-flex float-right"
+                style="margin-top: 10px!important;" (click)="addSurvey(modal)" rippleEffect>
+                <span *ngIf="addingSurvey" class="spinner-border spinner-border-sm mr-1"></span> 
+                Submit
+            </button>
+        </div>
+    </ng-template>
+
+    <ng-template #deleteSurveyModal let-modal1>
+        <div class="modal-header bg-info">
+            <h4 class="modal-title text-white" id="myModalLabel1">Active Survey</h4>
+            <button type="button" [disabled]="deletingSurvey" class="close" (click)="closed(modal1)" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" tabindex="0" ngbAutofocus>
+            <h5>Are you sure you want to active survey `{{toDelete?.name}}` ? </h5>
+            <p class="text-warning">Note: making this active, will automatically de-activate currently active survey. </p>
+        </div>
+        <div class="modal-footer">
+            <button type="button" [disabled]="deletingSurvey" class="btn btn-info d-flex float-right"
+                style="margin-top: 10px!important;" (click)="deleteSurvey(modal1)" rippleEffect>
+                <span *ngIf="deletingSurvey" class="spinner-border spinner-border-sm mr-1"></span> 
+                Activate
+            </button>
+        </div>
+    </ng-template>
+</div>

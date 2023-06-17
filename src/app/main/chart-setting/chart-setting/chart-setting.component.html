@@ -1,0 +1,351 @@
+<div class="fileChange" *ngIf="!fileName">
+  <input #fileInput type="file" id="file" (change)="handleFileInput($event)">
+</div>
+<div class="fileChange" *ngIf="fileName">
+  <label class="label-chart fileShow" for="">{{fileName}}</label>
+  <i class="fa fa-remove" (click)="removeFile()"></i>
+</div>
+
+<div class="row nav-vertical d-flex my-2" *ngIf="fileUploaded">
+  <div class="col-sm-3 mb-2 mb-md-0">
+    <ul ngbNav #navVertical="ngbNav" [activeId]="activeDelayed" class="nav nav-pills flex-column nav-left">
+      <li class="nav-item" [ngbNavItem]="tab == 1 ? tab : ''">
+        <a ngbNavLink class="nav-link d-flex py-75" id="account-pill-general" data-toggle="pill"
+          href="javascript:void(0)" aria-expanded="true">
+          <i class="fa fa-table font-medium-3 mr-1"></i>
+          <span class="font-weight-bold">Data</span>
+        </a>
+        <ng-template ngbNavContent>
+          <p>Choose file Result</p>
+          <div>
+            <ngx-datatable class="material fullscreen" style="width: auto; overflow: auto; height: 400px;"
+              class="bootstrap core-bootstrap sz-1000" [columnMode]="'force'" [headerHeight]="50" [footerHeight]="0"
+              [rowHeight]="50" [scrollbarV]="true" [scrollbarH]="true" [rows]="newRows" [loadingIndicator]="isLoading">
+              <ngx-datatable-column *ngFor="let clm of sepratedHdrs" [name]="clm.title" [prop]="clm.selector"
+                [width]="200">
+                <ng-template let-row="row" let-value="value" ngx-datatable-cell-template>
+                  {{ value}}
+                </ng-template>
+              </ngx-datatable-column>
+            </ngx-datatable>
+          </div>
+          <div class="close-right right-all">
+            <button class="btn-chart btn btn-primary" (click)="nextTab('1')">Next</button>
+          </div>
+        </ng-template>
+      </li>
+      <li class="nav-item" [ngbNavItem]="tab == 2 ? tab : ''">
+        <a ngbNavLink class="nav-link d-flex py-75" id="account-pill-general" data-toggle="pill"
+          href="javascript:void(0)" aria-expanded="true">
+          <i class="fa fa-bar-chart font-medium-3"></i>
+          <span class="font-weight-bold">Chart Title</span>
+        </a>
+        <ng-template ngbNavContent>
+          <div class="chart-option card">
+            <form [formGroup]="chartForm" (ngSubmit)="nextTab('2')">
+              <div class="row">
+                <div class="col-lg-12">
+                  <div class="chart-under">
+                    <div class="margin-bottom-chart"
+                      [ngClass]="{'has-error' : genForm.title.hasError('required') && genForm.title.dirty}">
+                      <label class="label-chart" for="">Chart Title <span class="text-danger">*</span></label>
+                      <input type="text" class="input-chart form-control" formControlName="title"
+                        [ngClass]="{'has-error-field' : genForm.title.hasError('required') && genForm.title.dirty}">
+                      <span class="help-block"
+                        *ngIf="{'has-error' : genForm.title.hasError('required') && genForm.title.dirty}">
+                        <span *ngIf="genForm.title.dirty && genForm.title.hasError('required')">
+                          Title required
+                        </span>
+                      </span>
+                    </div>
+                    <div class="close-right">
+                      <button type="submit" class="btn-chart btn btn-primary">Next</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </ng-template>
+      </li>
+      <li class="nav-item" [ngbNavItem]="tab == 3 ? tab : ''">
+        <a ngbNavLink class="nav-link d-flex py-75" id="account-pill-general" data-toggle="pill"
+          href="javascript:void(0)" aria-expanded="true">
+          <i class="fa fa-line-chart font-medium-3"></i>
+          <span class="font-weight-bold">X and Y Axis</span>
+        </a>
+        <ng-template ngbNavContent>
+          <div class="chart-option card">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="cus-pading">
+                  <div class="chart-table-content">
+                    <h4 class="card-title">Scales</h4>
+                  </div>
+                  <div class="close-right">
+                    <button class="btn-chart btn btn-primary" (click)="addRow()">+</button>
+                  </div>
+                </div>
+                <div class="custom-table">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Side</th>
+                          <th>Min (auto)</th>
+                          <th>Max (auto)</th>
+                          <th>Type</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let dynamic of dynamicArray; let i = index;">
+                          <td>
+                            <div class="margin-bottom-chart">
+                              <input type="text" class="input-chart form-control" placeholder="Left"
+                                name="{{dynamic.Name}}" [(ngModel)]="dynamic.Name"
+                                [ngClass]="{ 'is-invalid':  !dynamic.Name && submit }">
+                            </div>
+                            <span *ngIf="!dynamic.Name && submit " class="text-danger">Required</span>
+                          </td>
+                          <td>
+                            <div class="margin-bottom-chart">
+                              <select class="input-chart form-control" name="" id="" name="{{dynamic.Side}}"
+                                [(ngModel)]="dynamic.Side" [ngClass]="{ 'is-invalid':  !dynamic.Side && submit }">
+                                <option value="0">Left</option>
+                              </select>
+                            </div>
+                            <span *ngIf="!dynamic.Side && submit " class="text-danger">Required</span>
+                          </td>
+                          <td>
+                            <div class="margin-bottom-chart">
+                              <input type="text" class="input-chart form-control" name="{{dynamic.Min}}"
+                                [(ngModel)]="dynamic.Min" [ngClass]="{ 'is-invalid':  !dynamic.Min && submit }">
+                              <input type="checkbox">
+                            </div>
+                            <span *ngIf="!dynamic.Min && submit " class="text-danger">Required</span>
+                          </td>
+                          <td>
+                            <div class="margin-bottom-chart">
+                              <input type="text" class="input-chart form-control" name="{{dynamic.Max}}"
+                                [(ngModel)]="dynamic.Max" [ngClass]="{ 'is-invalid':  !dynamic.Max && submit }">
+                              <input type="checkbox">
+                            </div>
+                            <span *ngIf="!dynamic.Max.invalid && submit " class="text-danger">Required</span>
+                          </td>
+                          <td>
+                            <div class="margin-bottom-chart">
+                              <select class="input-chart form-control" name="" id="" name="{{dynamic.Type}}"
+                                [(ngModel)]="dynamic.Type" [ngClass]="{ 'is-invalid':  !dynamic.Type && submit }">
+                                <option value="0">Linear</option>
+                              </select>
+                            </div>
+                            <span *ngIf="!dynamic.Type && submit " class="text-danger">Required</span>
+                          </td>
+                          <td>
+                            <button class="btn-plus btn btn-primary" (click)="deleteRow(i)">-</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="close-right right-all">
+            <button class="btn-chart btn btn-primary" (click)="nextTab('3')">Next</button>
+          </div>
+        </ng-template>
+      </li>
+      <li class="nav-item" [ngbNavItem]="tab == 4 ? tab : ''">
+        <a ngbNavLink class="nav-link d-flex py-75" id="account-pill-general" data-toggle="pill"
+          href="javascript:void(0)" aria-expanded="true">
+          <i class="fa fa-balance-scale font-medium-3 mr-1"></i>
+          <span class="font-weight-bold">Units</span>
+        </a>
+        <ng-template ngbNavContent>
+          <div class="chart-option card">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="cus-pading">
+                  <div class="chart-table-content">
+                    <h4 class="card-title">Units</h4>
+                  </div>
+                  <div class="close-right">
+                    <button class="btn-chart btn btn-primary" (click)="addUnitRow()">+</button>
+                  </div>
+                </div>
+                <div class="custom-table">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Name</th>
+                          <th>Symbol</th>
+                          <th>Scale</th>
+                          <th></th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let unit of UnitsArray; let i = index;">
+                          <td>
+                            <div class="margin-bottom-chart">
+                              <input type="text" class="input-chart form-control" placeholder="Pressure"
+                                name="{{unit.Name}}" [(ngModel)]="unit.Name"
+                                [ngClass]="{ 'is-invalid':  !unit.Name && unitSubmit }">
+
+                            </div>
+                            <span *ngIf="!unit.Name && unitSubmit " class="text-danger">Required</span>
+                          </td>
+                          <td *ngIf="unit.Symbol == 'F' || unit.Symbol == 'C'">
+                            <div class="margin-bottom-chart">
+                              <select class="input-chart form-control" placeholder="Scale" id="" name="{{unit.Scale}}"
+                                [(ngModel)]="unit.Scale" [ngClass]="{ 'is-invalid':  !unit.Scale && unitSubmit }">
+                                <option value="0">F</option>
+                                <option value="1">C</option>
+                                <option value="">Select Value</option>
+                              </select>
+                            </div>
+                            <span *ngIf="!unit.Symbol && unitSubmit " class="text-danger">Required</span>
+                          </td>
+                          <td *ngIf="!unit.Symbol">
+                            <div class="margin-bottom-chart">
+                              <input type="text" class="input-chart form-control" placeholder="Symbol"
+                                name="{{unit.Symbol}}" [(ngModel)]="unit.Symbol"
+                                [ngClass]="{ 'is-invalid':  !unit.Symbol && unitSubmit }">
+                            </div>
+                            <span *ngIf="!unit.Symbol && unitSubmit " class="text-danger">Required</span>
+                          </td>
+                          <td *ngIf="unit.Symbol == 'PSI' || unit.Symbol == 'PSIG'">
+                            <div class="margin-bottom-chart">
+                              <select class="input-chart form-control" placeholder="Scale" id="" name="{{unit.Scale}}"
+                                [(ngModel)]="unit.Scale" [ngClass]="{ 'is-invalid':  !unit.Scale && unitSubmit }">
+                                <option value="0">PSI</option>
+                                <option value="1">PSIG</option>
+                                <option value="">Select Value</option>
+                              </select>
+                            </div>
+                            <span *ngIf="!unit.Symbol && unitSubmit " class="text-danger">Required</span>
+                          </td>
+                          <td>
+                            <div class="margin-bottom-chart">
+                              <select class="input-chart form-control" placeholder="Scale" id="" name="{{unit.Scale}}"
+                                [(ngModel)]="unit.Scale" [ngClass]="{ 'is-invalid':  !unit.Scale && unitSubmit }">
+                                <option value="0">Left</option>
+                                <option value="1">Right</option>
+                                <option value="">None</option>
+                              </select>
+                            </div>
+                            <span *ngIf="!unit.Scale && unitSubmit " class="text-danger">Required</span>
+                          </td>
+                          <td>
+                            <button class="btn-plus btn btn-primary" (click)="deleteUnitRow(i)">-</button>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="close-right right-all">
+            <button class="btn-chart btn btn-primary" (click)="nextTab('4')">Next</button>
+          </div>
+        </ng-template>
+      </li>
+      <li class="nav-item" [ngbNavItem]="tab == 5 ? tab : ''">
+        <a ngbNavLink class="nav-link d-flex py-75" id="account-pill-general" data-toggle="pill"
+          href="javascript:void(0)" aria-expanded="true">
+          <i class="fa fa-dot-circle-o font-medium-3 mr-1"></i>
+          <span class="font-weight-bold">Data Plots</span>
+        </a>
+        <ng-template ngbNavContent>
+          <div class="chart-option card">
+            <div class="row">
+              <div class="col-lg-12">
+                <div class="cus-pading">
+                  <div class="chart-table-content">
+                    <h4 class="card-title">Plot Info</h4>
+                  </div>
+                  <div class="close-right">
+                    <button class="btn-chart btn btn-primary" (click)="addPlotRow()">+</button>
+                  </div>
+                </div>
+                <div class="custom-table">
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th>Visible</th>
+                          <th>Name</th>
+                          <th>Color</th>
+                          <th>Units</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr *ngFor="let plot of plotArray; let i = index;">
+                          <td>
+                            <div class="margin-bottom-chart">
+                              <input type="checkbox" name="{{plot.Visible}}" [(ngModel)]="plot.Visible">
+                            </div>
+                          </td>
+                          <td>
+                            <div class="margin-bottom-chart">
+                              <input type="text" class="input-chart form-control" placeholder="Part 1"
+                                name="{{plot.title}}" [(ngModel)]="plot.title"
+                                [ngClass]="{ 'has-error-field':  !plot.title && dataSubmit }">
+                            </div>
+                            <span *ngIf="!plot.title && dataSubmit " class="text-danger">Required</span>
+                          </td>
+                          <td>
+                            <input type="color" style="min-width: 50px;" class="input-chart" placeholder="Part 1"
+                              name="{{plot.Color}}" [(ngModel)]="plot.Color"
+                              [ngClass]="{ 'has-error-field':  !plot.Color && dataSubmit }">
+                          </td>
+                          <td>
+                            <div class="margin-bottom-chart">
+                              <select class="input-chart form-control" placeholder="Units" name="{{plot.unit}}"
+                                [(ngModel)]="plot.unit =='PSIG' ? 'PSI': plot.unit =='C' ? 'F' :plot.unit" [ngClass]="{ 'has-error-field':  !plot.unit && dataSubmit }">
+                                
+                                <option value="">Select</option>
+                                <option [value]="item.Symbol" *ngFor="let item of UnitsArray">{{item.Name}}</option>
+                              </select>
+                              <span *ngIf="!plot.unit && dataSubmit " class="text-danger">Required</span>
+                            </div>
+                          </td>
+                        </tr>
+
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="close-right right-all">
+            <!-- <button class="btn-chart btn btn-primary" (click)="deletePlotRow(i)">Close</button> -->
+            <button class="btn-chart btn btn-primary" (click)="nextTab('5')">Next</button>
+          </div>
+        </ng-template>
+      </li>
+      <li class="nav-item" [ngbNavItem]="tab == 6 ? tab : ''">
+        <a ngbNavLink class="nav-link d-flex py-75" id="account-pill-general" data-toggle="pill"
+          href="javascript:void(0)" aria-expanded="true">
+          <i class="fa fa-area-chart font-medium-3 mr-1"></i>
+          <span class="font-weight-bold">Chart</span>
+        </a>
+        <ng-template ngbNavContent>
+          <p>Chart overview as per details</p>
+          <div class="close-right right-all">
+            <!-- <button class="btn-chart btn btn-primary" (click)="deletePlotRow(i)">Close</button> -->
+            <button class="btn-chart btn btn-primary" (click)="nextTab('6')">Submit</button>
+          </div>
+        </ng-template>
+      </li>
+    </ul>
+  </div>
+  <div [ngbNavOutlet]="navVertical" class="col-sm-9"></div>
+</div>
